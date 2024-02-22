@@ -9,7 +9,12 @@ const config = {
     "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
+  safelist: ["dark", "border-primary"],
   theme: {
+    fontFamily: {
+      sans: ["Inter", "ui-sans-serif", "system-ui"],
+      serif: ["Lato", "ui-serif", "system-ui"],
+    },
     container: {
       center: true,
       padding: "2rem",
