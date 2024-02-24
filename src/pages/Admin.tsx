@@ -21,21 +21,21 @@ async function Admin(props: { match: { params: { chat_id: string } } }) {
   if (!(await isAdmin(chat_id))) {
     navigate("/", { replace: true });
   }
-
+  // {id: boolean}
   const [messages, setMessages] = useState<Message[]>([]);
-  const [pinnedMessageIds, setPinnedMessageIds] = useState<
-    Record<string, boolean>
-  >([]);
-  const [deleteModeStore, setDeleteModeStore] = useState<
-    Record<string, boolean>
-  >({});
+  const [pinnedMessageIds, setPinnedMessageIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [deleteModeStore, setDeleteModeStore] = useState<Set<string>>(
+    new Set()
+  );
 
   const pinnedMessages = useMemo(
-    () => messages.filter((m) => pinnedMessageIds[m.id]),
+    () => messages.filter((m) => pinnedMessageIds.has(m.id)),
     [messages, pinnedMessageIds]
   );
   const unpinnedMessages = useMemo(
-    () => messages.filter((m) => !pinnedMessageIds[m.id]),
+    () => messages.filter((m) => !pinnedMessageIds.has(m.id)),
     [messages, pinnedMessageIds]
   );
 
@@ -54,32 +54,44 @@ async function Admin(props: { match: { params: { chat_id: string } } }) {
       }
     );
 
-  const toggleDeleteMode = (id: string) => {
-    setDeleteModeStore((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  const toggleSet =
+    <A,>(item: A) =>
+    (prev: Set<A>) => {
+      const newSet = new Set(prev);
+      if (prev.has(item)) {
+        newSet.delete(item);
+      } else {
+        newSet.add(item);
+      }
+      return newSet;
+    };
 
-  const deleteMessage = async (messageId: string) => {
+  const deleteMessage = async (messageId: string) =>
     pb.collection("chats").update(chat_id, {
       "messages-": messageId,
     });
+
+  const toggleDeleteMode = (messageId: string) => {
+    setDeleteModeStore(toggleSet(messageId));
   };
 
   const handleToggle = (messageId: string) => {
-    setPinnedMessageIds((prev) => ({
-      ...prev,
-      [messageId]: !pinnedMessageIds[messageId],
-    }));
+    setPinnedMessageIds(toggleSet(messageId));
   };
 
   return (
     <>
       {pinnedMessages.concat(unpinnedMessages).map((message) => (
-        <Card className={`p-0.5 flex gap-1 items-center max-w-lg ${pinnedMessageIds[message.id] && "border-primary"}`}>
+        <Card
+          className={`p-0.5 flex gap-1 items-center max-w-lg ${
+            pinnedMessageIds.has(message.id) && "border-primary"
+          }`}
+        >
           <span>{message.content}</span>
-          <span className='flex flex-col justify-between item-center'>
+          <span className="flex flex-col justify-between item-center">
             <Button
               onClick={() =>
-                deleteModeStore[message.id]
+                deleteModeStore.has(message.id)
                   ? deleteMessage(message.id)
                   : toggleDeleteMode(message.id)
               }
@@ -87,7 +99,7 @@ async function Admin(props: { match: { params: { chat_id: string } } }) {
             >
               <Trash size={16}></Trash>
             </Button>
-            {deleteModeStore[message.id] ? (
+            {deleteModeStore.has(message.id) ? (
               <Button
                 onClick={() => toggleDeleteMode(message.id)}
                 variant="ghost"

@@ -39,37 +39,36 @@ function Home() {
     resolver: zodResolver(createSchema),
   });
 
-  const onSubmit = async (values: z.infer<typeof createSchema>) => {
-    console.log(values);
+  const createChatTE = TE.tryCatchK(
+    (rawId: string, title = "Chat") =>
+      pb.collection("chats").create({
+        adminToken: v4(),
+        title: title,
+        id: padAndCut(rawId),
+        messages: [],
+      }),
+    () =>
+      createForm.setError("id", {
+        type: "custom",
+        message: "Tato adresa chatu již existuje. Zkuste jinou.",
+      })
+  );
 
-    const rawId = pipe(
+  const onSubmit = async (values: z.infer<typeof createSchema>) =>
+    pipe(
       values.id,
       O.fromNullable,
       O.map(cleanString),
-      O.getOrElse(() => v4())
-    );
-
-    pipe(
-      TE.tryCatch(
-        () =>
-          pb.collection("chats").create({
-            adminToken: v4(),
-            title: values.title || "Chat",
-            id: padAndCut(rawId),
-            messages: [],
-          }),
-        () =>
-          createForm.setError("id", {
-            type: "custom",
-            message: "Tato adresa chatu již existuje. Zkuste jinou.",
+      O.getOrElse(v4),
+      (rawId) =>
+        pipe(
+          createChatTE(rawId, values.title),
+          TE.map(({ adminToken }) => {
+            Cookies.set("adminToken", adminToken, { expires: 1 });
+            navigate(`/admin/${rawId}`, { replace: true });
           })
-      ),
-      TE.map(({ adminToken }) => {
-        Cookies.set("adminToken", adminToken, { expires: 1 });
-        navigate(`/admin/${rawId}`, { replace: true });
-      })
+        )
     );
-  };
 
   return (
     <Card className="max-w-lg w-full">
