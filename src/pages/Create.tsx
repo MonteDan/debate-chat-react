@@ -19,7 +19,6 @@ import pb from "@/lib/pb";
 import { cleanString, padAndCut } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as O from "fp-ts/Option";
-import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
 import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
@@ -39,35 +38,37 @@ function Home() {
     resolver: zodResolver(createSchema),
   });
 
-  const createChatTE = TE.tryCatchK(
-    (rawId: string, title = "Chat") =>
-      pb.collection("chats").create({
-        adminToken: v4(),
-        title: title,
-        id: padAndCut(rawId),
-        messages: [],
-      }),
-    () =>
-      createForm.setError("id", {
-        type: "custom",
-        message: "Tato adresa chatu již existuje. Zkuste jinou.",
-      })
-  );
+  const cleanOrElse =
+    (elseValue: string) => (value: string | null | undefined) =>
+      pipe(
+        value,
+        O.fromNullable,
+        O.map(cleanString),
+        O.getOrElse(() => elseValue)
+      );
 
   const onSubmit = async (values: z.infer<typeof createSchema>) =>
-    pipe(
-      values.id,
-      O.fromNullable,
-      O.map(cleanString),
-      O.getOrElse(v4),
-      (rawId) =>
-        pipe(
-          createChatTE(rawId, values.title),
-          TE.map(({ adminToken }) => {
-            Cookies.set("adminToken", adminToken, { expires: 1 });
-            navigate(`/admin/${rawId}`, { replace: true });
-          })
-        )
+    pipe(values.id, cleanOrElse(v4()), async (rawId) =>
+      pipe(values.title, cleanOrElse("Chat"), async (title: string) => {
+        try {
+          console.log("checking");
+          const { adminToken } = await pb.collection("chats").create({
+            adminToken: v4(),
+            title: title,
+            id: padAndCut(rawId),
+            messages: [],
+          });
+          Cookies.set("adminToken", adminToken, { expires: 1 });
+          navigate(`/admin/${rawId}`, { replace: true });
+        } catch (reason) {
+          console.log(reason);
+          createForm.setError("id", {
+            type: "custom",
+            message: "Tato adresa chatu již existuje. Zkuste jinou.",
+          });
+          throw reason;
+        }
+      })
     );
 
   return (
