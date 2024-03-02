@@ -65,7 +65,7 @@ function Admin() {
     setPinnedMessageIds(toggleSet(messageId));
   };
 
-  // Fetch messages and subscribe to chat
+  // Fetch messages and subscribe to the chat
   pb.collection("chats")
     .getOne(chatRecordID, { expand: "messages" })
     .then((record) => {
@@ -90,7 +90,7 @@ function Admin() {
   );
 
   return (
-    <>
+    <div className='flex flex-col items-end gap-4'>
       {loading ? (
         <p>Načítání...</p>
       ) : pinnedMessages.length + unpinnedMessages.length == 0 ? (
@@ -98,7 +98,7 @@ function Admin() {
       ) : (
         pinnedMessages.concat(unpinnedMessages).map((message) => (
           <Card
-            className={`p-0.5 flex gap-1 items-center max-w-lg ${
+            className={`p-0.5 pl-3 flex gap-1 items-center w-fit max-w-lg ${
               pinnedMessageIds.has(message.id) && "border-primary"
             }`}
           >
@@ -131,18 +131,20 @@ function Admin() {
                   <X size={16} />
                 </Button>
               ) : (
-                <Toggle
+                <Button
                   size="sm"
-                  onPressedChange={() => handleToggle(message.id)}
+                  variant='ghost'
+                  className={pinnedMessageIds.has(message.id) ? "bg-muted" : ""}
+                  onClick={() => handleToggle(message.id)}
                 >
                   <Pin size={16} className="opacity-50" />
-                </Toggle>
+                </Button>
               )}
             </span>
           </Card>
         ))
       )}
-    </>
+    </div>
   );
 }
 
