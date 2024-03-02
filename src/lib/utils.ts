@@ -1,6 +1,7 @@
 import pb from "@/lib/pb";
 import { clsx, type ClassValue } from "clsx";
 import Cookies from "js-cookie";
+import type { NavigateFunction } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -30,10 +31,35 @@ export const cleanString = (s: string) =>
 
 export const padAndCut = (id: string) => id.padStart(15, "0").substring(0, 15);
 
-export async function isAdmin(chat_id: string): Promise<boolean> {
-  const chat = await pb.collection("chats").getOne(chat_id, {
-    fields: "adminToken",
-  });
+export const isAdmin = async (
+  chat_id: string,
+  navigate: NavigateFunction
+): Promise<boolean> =>
+  await pb
+    .collection("chats")
+    .getOne(chat_id, {
+      fields: "adminToken",
+    })
+    .then((chat) => chat && chat.adminToken === Cookies.get("adminToken"))
+    .catch(() => {
+      navigate("/", { replace: true });
+      return false;
+    });
 
-  return chat && chat.adminToken === Cookies.get("adminToken");
-}
+export const toggleSet =
+  <A>(item: A) =>
+  (prev: Set<A>) => {
+    const newSet = new Set(prev);
+    if (prev.has(item)) {
+      newSet.delete(item);
+    } else {
+      newSet.add(item);
+    }
+    return newSet;
+  };
+
+export const checkAdmin = async (
+  chatRecordID: string,
+  navigate: NavigateFunction
+) =>
+  !(await isAdmin(chatRecordID, navigate)) && navigate("/", { replace: true });

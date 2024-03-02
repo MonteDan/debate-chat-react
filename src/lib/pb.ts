@@ -1,5 +1,5 @@
 import PocketBase from "pocketbase";
 
-const pb = new PocketBase(import.meta.env.REACT_APP_PB_URL);
-
+const pb = new PocketBase("https://debate-chat.pockethost.io");
+pb.autoCancellation(false)
 export default pb;
