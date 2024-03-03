@@ -47,12 +47,11 @@ function Home() {
         O.getOrElse(() => elseValue)
       );
 
-  const onSubmit = async (values: z.infer<typeof createSchema>) => {
-    const chatID = cleanOrElse("")(values.id);
-    const title = cleanOrElse(chatID)(values.title);
-
-    return pipe(
-      createChatTE(title, chatID),
+  const onSubmit = async (values: z.infer<typeof createSchema>) =>
+    pipe(
+      values.id,
+      cleanOrElse(""),
+      (chatID) => createChatTE(values.title || "", chatID),
       TE.matchW(
         (error) => {
           console.log(error);
@@ -69,7 +68,6 @@ function Home() {
         }
       )
     )();
-  };
 
   return (
     <Card className="max-w-lg w-full">
