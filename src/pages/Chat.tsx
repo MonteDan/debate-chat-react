@@ -7,9 +7,11 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import pb from "@/lib/pb";
-import { padAndCut } from "@/lib/utils";
+import { getChatTE, sendMessageTE } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as O from "fp-ts/Option";
+import * as TE from "fp-ts/TaskEither";
+import { pipe } from "fp-ts/lib/function";
 import { SendHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,7 +25,7 @@ const messageSchema = z.object({
 function Chat() {
   const navigate = useNavigate();
   const { chat_id } = useParams();
-  const chatRecordID = padAndCut(chat_id || "");
+  const chatID = chat_id || "";
 
   const [title, setTitle] = useState("Načítání chatu...");
 
@@ -31,21 +33,24 @@ function Chat() {
     "success" | "loading" | "sending" | "error" | "idle"
   >("loading");
 
-  const getChatTitle = async () => {
-    try {
-      const record = await pb
-        .collection("chats")
-        .getOne(chatRecordID, { fields: "title" });
-      try {
-        return record.title as string;
-      } catch (_) {
-        return "Chat";
-      }
-    } catch (_) {
-      navigate("/", { replace: true });
-      return "Přesměrování...";
-    }
+
+
+  const redirectHome = () => {
+    navigate("/", { replace: true });
+    return "Přesměrování...";
   };
+  const getChatTitle = async () =>
+    pipe(
+      chatID,
+      O.fromNullable,
+      O.foldW(redirectHome, (chatID) =>
+        pipe(
+          chatID,
+          getChatTE,
+          TE.matchW(redirectHome, (chat) => chat.title)
+        )()
+      )
+    );
 
   getChatTitle().then((result) => {
     setTitle(result);
@@ -58,30 +63,23 @@ function Chat() {
 
   const onSubmit = async (values: z.infer<typeof messageSchema>) => {
     setFormState("sending");
-    try {
-      const content = await pb
-        .collection("messages")
-        .create({ content: values.content });
-      try {
-        await pb
-          .collection("chats")
-          .update(chatRecordID, { "messages+": content.id });
-
-        setFormState("success");
-      } catch (error) {
-        messageForm.setError("content", {
-          type: "custom",
-          message: "Chat již neexistuje.",
-        });
-        setFormState("error");
-      }
-    } catch (error) {
-      messageForm.setError("content", {
-        type: "custom",
-        message: "Nepodařilo se odeslat zprávu",
-      });
-      setFormState("error");
-    }
+    return pipe(
+      sendMessageTE(values.content, chatID),
+      TE.matchW(
+        (error) => {
+          messageForm.setError("content", {
+            type: "custom",
+            message: "Nepodařilo se odeslat zprávu",
+          });
+          setFormState("error");
+          return error;
+        },
+        (response) => {
+          setFormState("success");
+          return Promise.resolve(response);
+        }
+      )
+    )();
   };
 
   return (
@@ -115,7 +113,7 @@ function Chat() {
             )}
           />
 
-          <Button type="submit" className='mt-6'>
+          <Button type="submit" className="mt-6">
             {formState == "sending" ? "Odesílání" : "Odeslat"}
 
             {formState == "error" ? (

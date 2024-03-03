@@ -15,15 +15,15 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import pb from "@/lib/pb";
-import { cleanString, padAndCut } from "@/lib/utils";
+import { createChatTE } from "@/lib/api";
+import { cleanString } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as O from "fp-ts/Option";
+import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
 import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { v4 } from "uuid";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -48,28 +48,26 @@ function Home() {
       );
 
   const onSubmit = async (values: z.infer<typeof createSchema>) =>
-    pipe(values.id, cleanOrElse(v4()), async (rawId) =>
-      pipe(values.title, cleanOrElse("Chat"), async (title: string) => {
-        try {
-          console.log("checking");
-          const { adminToken } = await pb.collection("chats").create({
-            adminToken: v4(),
-            title: title,
-            id: padAndCut(rawId),
-            messages: [],
-          });
-          Cookies.set("adminToken", adminToken, { expires: 1 });
-          navigate(`/admin/${rawId}`, { replace: true });
-        } catch (reason) {
-          console.log(reason);
+    pipe(
+      values.id,
+      cleanOrElse(""),
+      (chatID) => createChatTE(values.title || "", chatID),
+      TE.matchW(
+        (error) => {
+          console.log(error);
           createForm.setError("id", {
             type: "custom",
             message: "Tato adresa chatu již existuje. Zkuste jinou.",
           });
-          throw reason;
+          return error;
+        },
+        ({ adminToken, id }) => {
+          Cookies.set("adminToken", adminToken, { expires: 1 });
+          navigate(`/admin/${id}`, { replace: true });
+          return { adminToken, id };
         }
-      })
-    );
+      )
+    )();
 
   return (
     <Card className="max-w-lg w-full">

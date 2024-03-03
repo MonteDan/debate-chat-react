@@ -1,31 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Toggle } from "@/components/ui/toggle";
-import pb from "@/lib/pb";
+import { useToast } from "@/components/ui/use-toast";
 import {
-  checkAdmin as kickIfNotAdmin,
-  padAndCut,
-  toggleSet,
-} from "@/lib/utils";
-import * as O from "fp-ts/Option";
+  adminGetChatTE,
+  createAdminWebSocket,
+  deleteMessageTE,
+  type Message,
+} from "@/lib/api";
+import { toggleSet } from "@/lib/utils";
+import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
+import Cookies from "js-cookie";
 import { Pin, Trash, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-type Message = {
-  id: string;
-  content: string;
-};
 
 function Admin() {
-  const { chat_id } = useParams();
   const navigate = useNavigate();
-  const chatRecordID = padAndCut(chat_id || "");
-
-  useEffect(() => {
-    kickIfNotAdmin(chatRecordID, navigate);
-  }, [chatRecordID, navigate]);
+  const { toast } = useToast();
+  const { chat_id } = useParams();
+  const chatID = chat_id || "";
 
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -45,18 +40,19 @@ function Admin() {
     [messages, pinnedMessageIds]
   );
 
-  const deleteMessage = async (messageId: string) =>
-    pb
-      .collection("chats")
-      .update(chatRecordID, {
-        "messages-": messageId,
-      })
-      .then(() => {
-        toggleDeleteMode(messageId);
-        setMessages((prevMessages) =>
-          prevMessages.filter((m) => m.id !== messageId)
-        );
-      });
+  const deleteMessage = async (messageID: string) =>
+    pipe(
+      deleteMessageTE(messageID, Cookies.get("adminToken") ?? ""),
+      TE.matchW(
+        () => toast({ title: "Nepodařilo se smazat zprávu" }),
+        () => {
+          toggleDeleteMode(messageID);
+          setMessages((prevMessages) =>
+            prevMessages.filter((m) => m.id !== messageID)
+          );
+        }
+      )
+    )();
 
   const toggleDeleteMode = (messageId: string) => {
     setDeleteModeStore(toggleSet(messageId));
@@ -65,32 +61,38 @@ function Admin() {
     setPinnedMessageIds(toggleSet(messageId));
   };
 
-  // Fetch messages and subscribe to the chat
-  pb.collection("chats")
-    .getOne(chatRecordID, { expand: "messages" })
-    .then((record) => {
-      setLoading(false);
+  useEffect(() => {
+    if (chatID && navigate) {
+      // Fetch messages
       pipe(
-        record.expand?.messages as Message[],
-        O.fromNullable,
-        O.map(setMessages)
+        adminGetChatTE(chatID, Cookies.get("adminToken") || ""),
+        TE.matchW(
+          () => navigate("/", { replace: true }),
+          (chat) => {
+            setMessages(chat.messages);
+            setLoading(false);
+          }
+        )
+      )();
+
+      // Subscribe to messages
+      const websocket = createAdminWebSocket(
+        chatID,
+        Cookies.get("adminToken") || "",
+        (event) => {
+          const message = JSON.parse(event.data) as Message;
+          setMessages((prevMessages) => [...prevMessages, message]);
+        }
       );
-    });
-  pb.collection("chats").subscribe(
-    chatRecordID,
-    async ({ record }) =>
-      pipe(
-        record.expand?.messages as Message[],
-        O.fromNullable,
-        O.map(setMessages)
-      ),
-    {
-      expand: "messages",
+
+      return () => {
+        websocket.close();
+      };
     }
-  );
+  }, [chatID, navigate]);
 
   return (
-    <div className='flex flex-col items-end gap-4'>
+    <div className="flex flex-col items-end gap-4">
       {loading ? (
         <p>Načítání...</p>
       ) : pinnedMessages.length + unpinnedMessages.length == 0 ? (
@@ -133,7 +135,7 @@ function Admin() {
               ) : (
                 <Button
                   size="sm"
-                  variant='ghost'
+                  variant="ghost"
                   className={pinnedMessageIds.has(message.id) ? "bg-muted" : ""}
                   onClick={() => handleToggle(message.id)}
                 >
