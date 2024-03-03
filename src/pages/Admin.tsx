@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import {
   adminGetChatTE,
   createAdminWebSocket,
@@ -14,8 +15,10 @@ import { Pin, Trash, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+
 function Admin() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { chat_id } = useParams();
   const chatID = chat_id || "";
 
@@ -39,9 +42,9 @@ function Admin() {
 
   const deleteMessage = async (messageID: string) =>
     pipe(
-      deleteMessageTE(messageID, Cookies.get("adminToken") || ""),
+      deleteMessageTE(messageID, Cookies.get("adminToken") ?? ""),
       TE.matchW(
-        () => console.log("Failed to delete message"),
+        () => toast({ title: "Nepodařilo se smazat zprávu" }),
         () => {
           toggleDeleteMode(messageID);
           setMessages((prevMessages) =>

@@ -1,8 +1,9 @@
 import Help from "@/components/Help";
-import Create from "@/pages/Create";
-import Home from "@/pages/Home";
+import { Toaster } from "@/components/ui/toaster";
 import Admin from "@/pages/Admin";
 import Chat from "@/pages/Chat";
+import Create from "@/pages/Create";
+import Home from "@/pages/Home";
 import { MessageSquareText } from "lucide-react";
 import { Link, Route, Routes } from "react-router-dom";
 
@@ -28,6 +29,7 @@ function App() {
           <Route path="/admin/:chat_id" element={<Admin />} />
           <Route path="/chat/:chat_id" element={<Chat />} />
         </Routes>
+        <Toaster />
       </main>
     </>
   );
