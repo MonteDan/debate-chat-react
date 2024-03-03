@@ -1,10 +1,7 @@
 import * as TE from "fp-ts/TaskEither";
 import { identity } from "fp-ts/lib/function";
 
-const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "s://idk-the-adress-yet"
-    : "://localhost:8080";
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
 export type Message = {
   content: string;
