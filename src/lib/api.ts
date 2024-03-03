@@ -5,21 +5,6 @@ const API_URL =
     ? "s://idk-the-adress-yet"
     : "://localhost:8080";
 
-// export const createChat = async (title: string, id: string) => {
-//   const response = await fetch(`http${API_URL}/chats`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({ title, id }),
-//   });
-
-//   if (!response.ok) {
-//     return Promise.reject("Chat with ID already exists");
-//   }
-//   return await response.json();
-// };
-
 export type Message = {
   content: string;
   id: string;
@@ -31,7 +16,7 @@ export type Chat = {
   messages: Message[];
 };
 
-export const createChatTE = (title: string, id: string) =>
+export const createChatTE = (title: string, chatID: string) =>
   TE.tryCatchK(
     () =>
       fetch(`http${API_URL}/chats`, {
@@ -39,9 +24,19 @@ export const createChatTE = (title: string, id: string) =>
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, id }),
+        body: JSON.stringify({ title, id: chatID }),
       }).then((res) =>
         res.ok ? (res.json() as Promise<Chat>) : Promise.reject("")
       ),
     (reason) => reason
   )();
+
+export const getChatTE = (chatID: string) =>
+  TE.tryCatchK(
+    () =>
+      fetch(`http${API_URL}/chats/${chatID}`).then((res) =>
+        res.ok ? (res.json() as Promise<Chat>) : Promise.reject("")
+      ),
+    (reason) => reason
+  )();
+  
