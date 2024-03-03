@@ -7,9 +7,12 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { getChatTE } from "@/lib/api";
 import pb from "@/lib/pb";
-import { padAndCut } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as O from "fp-ts/Option";
+import * as TE from "fp-ts/TaskEither";
+import { pipe } from "fp-ts/lib/function";
 import { SendHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,7 +26,7 @@ const messageSchema = z.object({
 function Chat() {
   const navigate = useNavigate();
   const { chat_id } = useParams();
-  const chatRecordID = padAndCut(chat_id || "");
+  const chatID = chat_id || "";
 
   const [title, setTitle] = useState("Načítání chatu...");
 
@@ -31,21 +34,38 @@ function Chat() {
     "success" | "loading" | "sending" | "error" | "idle"
   >("loading");
 
-  const getChatTitle = async () => {
-    try {
-      const record = await pb
-        .collection("chats")
-        .getOne(chatRecordID, { fields: "title" });
-      try {
-        return record.title as string;
-      } catch (_) {
-        return "Chat";
-      }
-    } catch (_) {
-      navigate("/", { replace: true });
-      return "Přesměrování...";
-    }
+  // const getChatTitle = async () => {
+  //   try {
+  //     const record = await pb
+  //       .collection("chats")
+  //       .getOne(chatRecordID, { fields: "title" });
+  //     try {
+  //       return record.title as string;
+  //     } catch (_) {
+  //       return "Chat";
+  //     }
+  //   } catch (_) {
+  //     navigate("/", { replace: true });
+  //     return "Přesměrování...";
+  //   }
+  // };
+
+  const redirectHome = () => {
+    navigate("/", { replace: true });
+    return "Přesměrování...";
   };
+  const getChatTitle = async () =>
+    pipe(
+      chatID,
+      O.fromNullable,
+      O.foldW(redirectHome, (chatID) =>
+        pipe(
+          chatID,
+          getChatTE,
+          TE.matchW(redirectHome, (chat) => chat.title)
+        )()
+      )
+    );
 
   getChatTitle().then((result) => {
     setTitle(result);
@@ -65,7 +85,7 @@ function Chat() {
       try {
         await pb
           .collection("chats")
-          .update(chatRecordID, { "messages+": content.id });
+          .update(chatID, { "messages+": content.id });
 
         setFormState("success");
       } catch (error) {
@@ -115,7 +135,7 @@ function Chat() {
             )}
           />
 
-          <Button type="submit" className='mt-6'>
+          <Button type="submit" className="mt-6">
             {formState == "sending" ? "Odesílání" : "Odeslat"}
 
             {formState == "error" ? (
