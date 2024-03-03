@@ -24,7 +24,6 @@
     "localforage": "^1.10.0",
     "lucide-react": "^0.336.0",
     "match-sorter": "^6.3.4",
-    "pocketbase": "^0.21.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
