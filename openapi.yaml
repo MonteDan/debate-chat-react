@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  title: Chat API
+  version: 1.0.0
+servers:
+  - url: '{API_URL}'
+    variables:
+      API_URL:
+        default: 'http://localhost:3000' # Replace with your actual API URL
+paths:
+  /chats:
+    post:
+      summary: Create a new chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Returns the created chat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+  /chats/{chatID}:
+    get:
+      summary: Get a chat by ID
+      parameters:
+        - name: chatID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns the chat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+  /chats/{chatID}/admin:
+    get:
+      summary: Get a chat by ID as an admin
+      parameters:
+        - name: chatID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns the chat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+  /message:
+    post:
+      summary: Send a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                chatId:
+                  type: string
+      responses:
+        '200':
+          description: Message sent
+  /message/{messageID}:
+    delete:
+      summary: Delete a message
+      parameters:
+        - name: messageID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message deleted
+components:
+  schemas:
+    Chat:
+      type: object
+      properties:
+        title:
+          type: string
+        id:
+          type: string
+        adminToken:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+    Message:
+      type: object
+      properties:
+        content:
+          type: string
+        id:
+          type: string
