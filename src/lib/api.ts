@@ -1,4 +1,5 @@
 import * as TE from "fp-ts/TaskEither";
+import { identity } from "fp-ts/lib/function";
 
 const API_URL =
   process.env.NODE_ENV === "production"
@@ -28,7 +29,7 @@ export const createChatTE = (title: string, chatID: string) =>
       }).then((res) =>
         res.ok ? (res.json() as Promise<Chat>) : Promise.reject("")
       ),
-    (reason) => reason
+    identity
   )();
 
 export const getChatTE = (chatID: string) =>
@@ -37,7 +38,7 @@ export const getChatTE = (chatID: string) =>
       fetch(`http${API_URL}/chats/${chatID}`).then((res) =>
         res.ok ? (res.json() as Promise<Chat>) : Promise.reject("")
       ),
-    (reason) => reason
+    identity
   )();
 
 export const sendMessageTE = (content: string, chatID: string) =>
@@ -50,7 +51,7 @@ export const sendMessageTE = (content: string, chatID: string) =>
         },
         body: JSON.stringify({ content, chatId: chatID }),
       }).then((res) => (res.ok ? res.text() : Promise.reject(""))),
-    (reason) => reason
+    identity
   )();
 
 export const adminGetChatTE = (chatID: string, adminToken: string) =>
@@ -66,7 +67,7 @@ export const adminGetChatTE = (chatID: string, adminToken: string) =>
           ? (res.json() as Promise<Chat>)
           : Promise.reject("Insufficient permissions")
       ),
-    (reason) => reason
+    identity
   )();
 
 export const createAdminWebSocket = (
@@ -93,5 +94,5 @@ export const deleteMessageTE = (messageID: string, adminToken: string) =>
       }).then((res) =>
         res.ok ? res.text() : Promise.reject("Insufficient permissions")
       ),
-    (reason) => reason
+    identity
   )();
