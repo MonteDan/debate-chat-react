@@ -37,21 +37,7 @@ function Admin() {
     [messages, pinnedMessageIds]
   );
 
-  // const deleteMessage = async (messageId: string) =>
-  //   pb
-  //     .collection("chats")
-  //     .update(chatID, {
-  //       "messages-": messageId,
-  //     })
-  //     .then(() => {
-  //       toggleDeleteMode(messageId);
-  //       setMessages((prevMessages) =>
-  //         prevMessages.filter((m) => m.id !== messageId)
-  //       );
-  //     });
-
-  const deleteMessage = async (messageID: string) => {
-    console.log(`Deleting message ${messageID}`);
+  const deleteMessage = async (messageID: string) =>
     pipe(
       deleteMessageTE(messageID, Cookies.get("adminToken") || ""),
       TE.matchW(
@@ -64,7 +50,6 @@ function Admin() {
         }
       )
     )();
-  };
 
   const toggleDeleteMode = (messageId: string) => {
     setDeleteModeStore(toggleSet(messageId));
