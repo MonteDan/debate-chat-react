@@ -81,3 +81,17 @@ export const createAdminWebSocket = (
 
   return websocket;
 };
+
+export const deleteMessageTE = (messageID: string, adminToken: string) =>
+  TE.tryCatchK(
+    () =>
+      fetch(`http${API_URL}/message/${messageID}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      }).then((res) =>
+        res.ok ? res.text() : Promise.reject("Insufficient permissions")
+      ),
+    (reason) => reason
+  )();

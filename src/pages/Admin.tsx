@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { adminGetChatTE, createAdminWebSocket, type Message } from "@/lib/api";
-import pb from "@/lib/pb";
+import {
+  adminGetChatTE,
+  createAdminWebSocket,
+  deleteMessageTE,
+  type Message,
+} from "@/lib/api";
 import { toggleSet } from "@/lib/utils";
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
@@ -33,18 +37,34 @@ function Admin() {
     [messages, pinnedMessageIds]
   );
 
-  const deleteMessage = async (messageId: string) =>
-    pb
-      .collection("chats")
-      .update(chatID, {
-        "messages-": messageId,
-      })
-      .then(() => {
-        toggleDeleteMode(messageId);
-        setMessages((prevMessages) =>
-          prevMessages.filter((m) => m.id !== messageId)
-        );
-      });
+  // const deleteMessage = async (messageId: string) =>
+  //   pb
+  //     .collection("chats")
+  //     .update(chatID, {
+  //       "messages-": messageId,
+  //     })
+  //     .then(() => {
+  //       toggleDeleteMode(messageId);
+  //       setMessages((prevMessages) =>
+  //         prevMessages.filter((m) => m.id !== messageId)
+  //       );
+  //     });
+
+  const deleteMessage = async (messageID: string) => {
+    console.log(`Deleting message ${messageID}`);
+    pipe(
+      deleteMessageTE(messageID, Cookies.get("adminToken") || ""),
+      TE.matchW(
+        () => console.log("Failed to delete message"),
+        () => {
+          toggleDeleteMode(messageID);
+          setMessages((prevMessages) =>
+            prevMessages.filter((m) => m.id !== messageID)
+          );
+        }
+      )
+    )();
+  };
 
   const toggleDeleteMode = (messageId: string) => {
     setDeleteModeStore(toggleSet(messageId));
@@ -82,29 +102,6 @@ function Admin() {
       };
     }
   }, [chatID, navigate]);
-
-  // pb.collection("chats")
-  //   .getOne(chatRecordID, { expand: "messages" })
-  //   .then((record) => {
-  //     setLoading(false);
-  //     pipe(
-  //       record.expand?.messages as Message[],
-  //       O.fromNullable,
-  //       O.map(setMessages)
-  //     );
-  //   });
-  // pb.collection("chats").subscribe(
-  //   chatRecordID,
-  //   async ({ record }) =>
-  //     pipe(
-  //       record.expand?.messages as Message[],
-  //       O.fromNullable,
-  //       O.map(setMessages)
-  //     ),
-  //   {
-  //     expand: "messages",
-  //   }
-  // );
 
   return (
     <div className="flex flex-col items-end gap-4">
