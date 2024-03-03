@@ -7,8 +7,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { getChatTE } from "@/lib/api";
-import pb from "@/lib/pb";
+import { getChatTE, sendMessageTE } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
@@ -78,30 +77,23 @@ function Chat() {
 
   const onSubmit = async (values: z.infer<typeof messageSchema>) => {
     setFormState("sending");
-    try {
-      const content = await pb
-        .collection("messages")
-        .create({ content: values.content });
-      try {
-        await pb
-          .collection("chats")
-          .update(chatID, { "messages+": content.id });
-
-        setFormState("success");
-      } catch (error) {
-        messageForm.setError("content", {
-          type: "custom",
-          message: "Chat již neexistuje.",
-        });
-        setFormState("error");
-      }
-    } catch (error) {
-      messageForm.setError("content", {
-        type: "custom",
-        message: "Nepodařilo se odeslat zprávu",
-      });
-      setFormState("error");
-    }
+    return pipe(
+      sendMessageTE(values.content, chatID),
+      TE.matchW(
+        (error) => {
+          messageForm.setError("content", {
+            type: "custom",
+            message: "Nepodařilo se odeslat zprávu",
+          });
+          setFormState("error");
+          return error;
+        },
+        (response) => {
+          setFormState("success");
+          return Promise.resolve(response);
+        }
+      )
+    )();
   };
 
   return (

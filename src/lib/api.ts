@@ -40,4 +40,15 @@ export const getChatTE = (chatID: string) =>
     (reason) => reason
   )();
 
-
+export const sendMessageTE = (content: string, chatID: string) =>
+  TE.tryCatchK(
+    () =>
+      fetch(`http${API_URL}/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content, chat_id: chatID }),
+      }).then((res) => (res.ok ? res.text() : Promise.reject(""))),
+    (reason) => reason
+  )();
