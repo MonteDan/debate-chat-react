@@ -48,7 +48,36 @@ export const sendMessageTE = (content: string, chatID: string) =>
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ content, chat_id: chatID }),
+        body: JSON.stringify({ content, chatId: chatID }),
       }).then((res) => (res.ok ? res.text() : Promise.reject(""))),
     (reason) => reason
   )();
+
+export const adminGetChatTE = (chatID: string, adminToken: string) =>
+  TE.tryCatchK(
+    () =>
+      fetch(`http${API_URL}/chats/${chatID}/admin`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
+        },
+      }).then((res) =>
+        res.ok
+          ? (res.json() as Promise<Chat>)
+          : Promise.reject("Insufficient permissions")
+      ),
+    (reason) => reason
+  )();
+
+export const createAdminWebSocket = (
+  chatID: string,
+  adminToken: string,
+  onMessage: WebSocket["onmessage"]
+) => {
+  const websocket = new WebSocket(
+    `ws${API_URL}/ws?adminToken=${adminToken}&chatId=${chatID}`
+  );
+  websocket.onmessage = onMessage;
+
+  return websocket;
+};

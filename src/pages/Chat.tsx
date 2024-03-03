@@ -33,21 +33,7 @@ function Chat() {
     "success" | "loading" | "sending" | "error" | "idle"
   >("loading");
 
-  // const getChatTitle = async () => {
-  //   try {
-  //     const record = await pb
-  //       .collection("chats")
-  //       .getOne(chatRecordID, { fields: "title" });
-  //     try {
-  //       return record.title as string;
-  //     } catch (_) {
-  //       return "Chat";
-  //     }
-  //   } catch (_) {
-  //     navigate("/", { replace: true });
-  //     return "Přesměrování...";
-  //   }
-  // };
+
 
   const redirectHome = () => {
     navigate("/", { replace: true });
