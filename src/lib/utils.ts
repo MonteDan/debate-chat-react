@@ -39,3 +39,9 @@ export const toggleSet =
     }
     return newSet;
   };
+
+const W = 210; // A4 width (mm)
+const H = 297; // A4 height (mm)
+/** Number of square images => number of columns needed to fit them on an A4 while keeping them as spacious as possible */
+export const calculateColumns = (nOfImages: number) =>
+  Math.ceil((Math.sqrt(nOfImages) * W) / H);

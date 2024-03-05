@@ -3,25 +3,22 @@ import * as QR from "react-qrbtf";
 
 interface Props {
   value: string;
+  title?: string;
+  className?: string;
 }
 
-const QRCode: FC<Props> = ({ value }) => {
+const QRCode: FC<Props> = ({ value, title, className }) => {
   return (
-    <div>
-      {/* <QR.QRNormal value={value}  iconScale={0.25} posColor="hsl(var(--foreground))"  /> */}
-      <QR.QRFunc
-        value={value}
-        posType="roundRect"
-        type="round"
-        icon="https://debatnichat.online/favicon.svg"
-        iconScale={0.25}
-        posColor="hsl(var(--foreground))"
-      />
-      {/* <QR.QRLine value={value} posType="roundRect" direction="h-v" icon="http://localhost:5173/favicon.svg" iconScale={0.25} posColor="hsl(var(--foreground))" />
-      <QR.QRLine value={value} posType="roundRect" direction="loop" icon="http://localhost:5173/favicon.svg" iconScale={0.25} posColor="hsl(var(--foreground))" />
-      <QR.QRLine value={value} posType="roundRect" direction="topLeft-bottomRight" icon="http://localhost:5173/favicon.svg" iconScale={0.25} posColor="hsl(var(--foreground))" />
-      <QR.QRLine value={value} posType="roundRect" direction="topRight-bottomLeft" icon="http://localhost:5173/favicon.svg" iconScale={0.25} posColor="hsl(var(--foreground))" /> */}
-    </div>
+    <QR.QRFunc
+      className={className}
+      value={value}
+      posType="roundRect"
+      type="round"
+      title={title}
+      icon="https://debatnichat.online/favicon.svg"
+      iconScale={0.25}
+      posColor="hsl(var(--foreground))"
+    />
   );
 };
 
