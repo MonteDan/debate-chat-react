@@ -17,7 +17,6 @@ const QRCode: FC<Props> = ({ value, className }) => {
         type="round"
         icon="https://debatnichat.online/favicon.svg"
         iconScale={0.25}
-        posColor="hsl(var(--foreground))"
       />
     </div>
   );

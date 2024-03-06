@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
+    "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-separator": "^1.0.3",
@@ -32,7 +33,9 @@
     "react-hook-form": "^7.50.1",
     "react-qrbtf": "^1.2.1",
     "react-router-dom": "^6.22.1",
+    "react-svg-to-image": "^3.0.0",
     "sort-by": "^1.2.0",
+    "svg-to-img": "^2.0.9",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1",
