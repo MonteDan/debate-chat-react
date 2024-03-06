@@ -40,8 +40,15 @@ export const toggleSet =
     return newSet;
   };
 
-const W = 210; // A4 width (mm)
-const H = 297; // A4 height (mm)
+export const W = 210; // A4 width (mm)
+export const H = 297; // A4 height (mm)
 /** Number of square images => number of columns needed to fit them on an A4 while keeping them as spacious as possible */
 export const calculateColumns = (nOfImages: number) =>
   Math.ceil((Math.sqrt(nOfImages) * W) / H);
+
+export const inchesToMm = (inches: number) => inches * 25.4;
+
+console.log(calculateColumns(2))
+console.log(calculateColumns(3))
+console.log(calculateColumns(4))
+console.log(calculateColumns(5))
