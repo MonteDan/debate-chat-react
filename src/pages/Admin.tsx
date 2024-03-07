@@ -98,7 +98,7 @@ function Admin() {
   }, [chatID, navigate]);
 
   return (
-    <div className="flex flex-col items-center gap-24 max-w-lg overflow-hidden overflow-ellipsis">
+    <div className="flex flex-col items-center gap-24 max-w-[95vw] sm:max-w-lg overflow-hidden overflow-ellipsis">
       {loading ? (
         <p>Načítání...</p>
       ) : (
@@ -132,17 +132,19 @@ function Admin() {
               <QRDialog chatID={chatID} />
             </div>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 max-w-full">
             {pinnedMessages.length + unpinnedMessages.length == 0 ? (
               <p>Zatím nepřišly žádné zprávy</p>
             ) : (
               pinnedMessages.concat(unpinnedMessages).map((message) => (
                 <Card
-                  className={`p-1 pl-3 flex gap-1 justify-between items-center w-full ${
+                  className={`p-1 pl-3 flex gap-1 justify-between items-center max-w-full ${
                     pinnedMessageIds.has(message.id) && "border-primary"
                   }`}
                 >
-                  <div>{message.content}</div>
+                  <div className="break-words overflow-clip">
+                    {message.content}
+                  </div>
                   <div className="flex flex-col justify-between item-center">
                     <Button
                       onClick={() =>
