@@ -38,10 +38,6 @@ const QRPrintDialog: FC<Props> = ({ chatID }) => {
 
   const getClass = (i: number) => (selectedIndex === i ? "bg-accent" : "");
 
-  // const dispatchPrint = () => {
-  //   onPrint(imagesPerA4);
-  // };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>

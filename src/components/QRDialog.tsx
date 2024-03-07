@@ -2,7 +2,6 @@ import QRCode from "@/components/QRCode";
 import QRPrintDialog from "@/components/QRPrintDialog";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-// import { useToast } from "@/components/ui/use-toast";
 import * as O from "fp-ts/Option";
 import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
@@ -10,7 +9,6 @@ import { pipe } from "fp-ts/function";
 import { toPng } from "html-to-image";
 import { Download, QrCode } from "lucide-react";
 import { FC } from "react";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   chatID: string;
@@ -26,8 +24,6 @@ const toHighResImage = <T extends HTMLElement>(image: T) =>
   });
 
 const QRDialog: FC<Props> = ({ chatID }) => {
-  // const { toast } = useToast();
-  const navigate = useNavigate();
 
   const downloadQrCode = () =>
     pipe(
@@ -59,48 +55,6 @@ const QRDialog: FC<Props> = ({ chatID }) => {
       )
     );
 
-  // const printQrCode = (numPerA4: number = 1) =>
-  //   pipe(
-  //     document.querySelector("#qrcode") as HTMLElement,
-  //     O.fromNullable,
-  //     O.foldW(
-  //       () => toast({ description: "No QR code found" }),
-  //       async (qr) => {
-  //         const printingWindow = window.open("", "_blank");
-
-  //         const columns = calculateColumns(numPerA4);
-
-  //         printingWindow?.document.write(`
-  //               <html>
-  //                 <head>
-  //                   <style>
-  //                     body {
-  //                       margin: 0;
-  //                     }
-  //                   </style>
-  //                   <script>
-  //                     window.onload = () => window.print();
-  //                   </script>
-  //                 </head>
-  //                 <body>
-  //                   <div style="display: grid; grid-template-columns: ${"1fr ".repeat(
-  //                     columns
-  //                   )}">
-  //             `);
-
-  //         const sizeInMm = Math.min((H * columns) / numPerA4, W / columns);
-  //         for (let n = 0; n < numPerA4; n++) {
-  //           printingWindow?.document.write(
-  //             `<div style="width: ${sizeInMm}mm; height: ${sizeInMm}mm">${qr.innerHTML}</div>`
-  //           );
-  //         }
-
-  //         printingWindow?.document.write("</div>");
-  //         printingWindow?.document.write("</body></html>");
-  //         printingWindow?.document.close();
-  //       }
-  //     )
-  //   );
   return (
     <Dialog>
       <DialogTrigger asChild>
