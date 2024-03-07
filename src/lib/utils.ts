@@ -60,7 +60,7 @@ export const getSizeInMm = (imagesPerA4: number) =>
 
 /** Returns a fraction respresenting how much paper is covered by the QR Codes */
 export const getEfficiency = (imagesPerA4: number) =>
-  (getSizeInMm(imagesPerA4) ** 2 * imagesPerA4) / W / H; // AreaOfOne^2 * amount / PaperArea
+  (getSizeInMm(imagesPerA4) ** 2 * imagesPerA4) / W / H; // AreaOfOne^2 * Amount / PaperArea
 
 export const round = (precision: number) => (n: number) =>
   Math.round(n * 10 ** precision) / 10 ** precision;
