@@ -98,7 +98,7 @@ function Admin() {
         <p>Načítání...</p>
       ) : (
         <>
-          <div className="flex items-center">
+          <div className="flex gap-4 items-center">
             <h3>{chatTitle}</h3>
             <QRDialog chatID={chatID} />
           </div>

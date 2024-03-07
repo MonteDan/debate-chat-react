@@ -3,15 +3,13 @@ import * as QR from "react-qrbtf";
 
 interface Props {
   value: string;
-  title?: string;
-  className?: string;
 }
 
-const QRCode: FC<Props> = ({ value, className }) => {
+const QRCode: FC<Props> = ({ value }) => {
   return (
     <div className="flex items-center justify-center overflow-hidden h-full w-full">
       <QR.QRFunc
-        className={"object-cover object-center scale-[1.3] " + className}
+        className=" object-cover object-center scale-[1.3] "
         value={value}
         posType="roundRect"
         type="round"

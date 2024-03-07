@@ -1,5 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
+import * as O from "fp-ts/Option";
+import * as T from "fp-ts/Task";
+import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/lib/function";
+import { toPng } from "html-to-image";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -59,4 +63,33 @@ export const getEfficiency = (imagesPerA4: number) =>
   (getSizeInMm(imagesPerA4) ** 2 * imagesPerA4) / W / H; // AreaOfOne^2 * amount / PaperArea
 
 export const round = (precision: number) => (n: number) =>
-  Math.round(n * 10**precision) / 10**precision
+  Math.round(n * 10 ** precision) / 10 ** precision;
+
+export const downloadQrCode = (chatID: string) =>
+  pipe(
+    document.querySelector("#qrcode") as HTMLElement,
+    O.fromNullable,
+    O.fold(
+      () => TE.left(new Error("No QR code found")),
+      TE.tryCatchK(
+        (qr: HTMLElement) => toPng(qr as HTMLElement, { skipFonts: true }),
+        () => new Error("Conversion to PNG format failed.")
+      )
+    ),
+    TE.chain(
+      TE.tryCatchK(
+        (dataUrl: string) => {
+          const link = document.createElement("a");
+          link.download = `QR-debatnichat-${chatID}.png`;
+          link.href = dataUrl;
+          link.click();
+          return Promise.resolve();
+        },
+        () => new Error("Failed to download QR code PNG")
+      )
+    ),
+    TE.fold(
+      (error) => T.fromIO(() => console.log(error.message)),
+      () => T.fromIO(() => undefined)
+    )
+  )();

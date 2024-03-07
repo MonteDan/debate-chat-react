@@ -57,8 +57,8 @@ const QRPrintDialog: FC<Props> = ({ chatID }) => {
             Počet QR kódů na A4
             <FormHelp>
               Zvolte, kolik QR kódů chcete vytisknout na jednu stránku formátu
-              A4. Navrhované možnosti kromě "1" jsou vybrány ekologicky pro
-              efektivní spotřebu papíru. 
+              A4. Navrhované možnosti (kromě 1,2) jsou vybrány ekologicky pro
+              efektivní spotřebu papíru.
             </FormHelp>
           </Label>
           <div className="flex gap-2">
