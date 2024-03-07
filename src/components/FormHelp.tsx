@@ -18,7 +18,7 @@ const FormHelp: React.FC<Props> = ({ children }) => {
         <TooltipTrigger asChild>
           <HelpCircle size={16} className="text-muted-foreground"></HelpCircle>
         </TooltipTrigger>
-        <TooltipContent>{children}</TooltipContent>
+        <TooltipContent className="max-w-sm">{children}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

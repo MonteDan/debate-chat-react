@@ -15,6 +15,7 @@ import { getSizeInMm, round } from "@/lib/utils";
 import { flow } from "fp-ts/lib/function";
 import { Printer } from "lucide-react";
 import { FC, useEffect, useState } from "react";
+import FormHelp from "./FormHelp";
 
 type Props = {
   onPrint?: (imagesPerA4: number) => void;
@@ -52,12 +53,18 @@ const QRPrintDialog: FC<Props> = ({ chatID }) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Jak tisknout?</AlertDialogTitle>
           <AlertDialogDescription className="pb-2">
-            Zvolte, kolik QR kódů chcete vytisknout na jednu stránku formátu A4,
-            možnosti jsou vybrány ekologicky pro efektivní využití papíru. Před
-            tiskem se ujistěte, že tisknete na A4 a že máte vyplé okraje a
+            Zvolte, kolik QR kódů chcete vytisknout na jednu stránku formátu A4.
+            Před tiskem se ujistěte, že tisknete na A4 a že máte vyplé okraje a
             odsazení.
           </AlertDialogDescription>
-          <Label>Počet QR kódů na A4</Label>
+          <Label className="flex gap-2">
+            Počet QR kódů na A4
+            <FormHelp>
+              Zvolte, kolik QR kódů chcete vytisknout na jednu stránku formátu
+              A4. Navrhované možnosti kromě "1" jsou vybrány ekologicky pro
+              efektivní spotřebu papíru. 
+            </FormHelp>
+          </Label>
           <div className="flex gap-2">
             {amountOptions.map((n, i) => (
               <Button
