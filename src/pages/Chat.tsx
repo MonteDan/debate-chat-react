@@ -26,7 +26,7 @@ const messageSchema = z.object({
 const Chat = () => {
   const navigate = useNavigate();
   const { chat_id } = useParams();
-  const {toast} = useToast()
+  const { toast } = useToast();
   const chatID = chat_id || "";
 
   const [title, setTitle] = useState("Načítání chatu...");
@@ -34,8 +34,6 @@ const Chat = () => {
   const [formState, setFormState] = useState<
     "success" | "loading" | "sending" | "error" | "idle"
   >("loading");
-
-
 
   const redirectHome = () => {
     navigate("/", { replace: true });
@@ -61,6 +59,7 @@ const Chat = () => {
 
   const messageForm = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
+    defaultValues: { content: "" },
   });
 
   const onSubmit = async (values: z.infer<typeof messageSchema>) => {
@@ -78,8 +77,8 @@ const Chat = () => {
         },
         (response) => {
           setFormState("success");
-          messageForm.reset()
-          toast({description: "Zpráva odeslána"})
+          messageForm.reset();
+          toast({ description: "Zpráva odeslána" });
           return Promise.resolve(response);
         }
       )
@@ -130,6 +129,6 @@ const Chat = () => {
       </Form>
     </div>
   );
-}
+};
 
 export default Chat;
