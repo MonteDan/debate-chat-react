@@ -11,7 +11,7 @@ const QRCode: FC<Props> = ({ value, className }) => {
   return (
     <div className="flex items-center justify-center overflow-hidden h-full w-full">
       <QR.QRFunc
-        className={"object-cover object-center scale-125 " + className}
+        className={"object-cover object-center scale-[1.3] " + className}
         value={value}
         posType="roundRect"
         type="round"

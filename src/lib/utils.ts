@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { pipe } from "fp-ts/lib/function";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -40,15 +41,22 @@ export const toggleSet =
     return newSet;
   };
 
-export const W = 210; // A4 width (mm)
-export const H = 297; // A4 height (mm)
+export const W = 205; // A4 width (mm), I went for 5mm less just to be sure of the compatibility with the majority of browsers
+export const H = 292; // A4 height (mm), I went for 5mm less just to be sure of the compatibility with the majority of browsers
 /** Number of square images => number of columns needed to fit them on an A4 while keeping them as spacious as possible */
-export const calculateColumns = (nOfImages: number) =>
+export const getColumns = (nOfImages: number) =>
   Math.ceil((Math.sqrt(nOfImages) * W) / H);
 
 export const inchesToMm = (inches: number) => inches * 25.4;
 
-console.log(calculateColumns(2))
-console.log(calculateColumns(3))
-console.log(calculateColumns(4))
-console.log(calculateColumns(5))
+export const getSizeInMm = (imagesPerA4: number) =>
+  pipe(imagesPerA4, getColumns, (columns) =>
+    Math.min(H / Math.ceil(imagesPerA4 / columns), W / columns)
+  );
+
+/** Returns a fraction respresenting how much paper is covered by the QR Codes */
+export const getEfficiency = (imagesPerA4: number) =>
+  (getSizeInMm(imagesPerA4) ** 2 * imagesPerA4) / W / H; // AreaOfOne^2 * amount / PaperArea
+
+export const round = (precision: number) => (n: number) =>
+  Math.round(n * 10**precision) / 10**precision

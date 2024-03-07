@@ -19,8 +19,7 @@ import { useNavigate, useParams } from "react-router-dom";
 function Admin() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { chat_id } = useParams();
-  const chatID = chat_id || "";
+  const chatID = useParams().chat_id || "";
 
   const [loading, setLoading] = useState(true);
   const [chatTitle, setChatTitle] = useState<string>();
@@ -97,65 +96,69 @@ function Admin() {
     <div className="flex flex-col items-center gap-8">
       {loading ? (
         <p>Načítání...</p>
-      ) : pinnedMessages.length + unpinnedMessages.length == 0 ? (
-        <p>Zatím nepřišly žádné zprávy</p>
       ) : (
         <>
           <div className="flex items-center">
             <h3>{chatTitle}</h3>
             <QRDialog chatID={chatID} />
           </div>
-          {pinnedMessages.concat(unpinnedMessages).map((message) => (
-            <div className="flex flex-col gap-4 max-w-lg">
-              <Card
-                className={`p-0.5 pl-3 flex gap-1 items-center w-full ${
-                  pinnedMessageIds.has(message.id) && "border-primary"
-                }`}
-              >
-                <div>{message.content}</div>
-                <div className="flex flex-col justify-between item-center">
-                  <Button
-                    onClick={() =>
-                      deleteModeStore.has(message.id)
-                        ? deleteMessage(message.id)
-                        : toggleDeleteMode(message.id)
-                    }
-                    variant={
-                      deleteModeStore.has(message.id) ? "destructive" : "ghost"
-                    }
-                    size="sm"
-                  >
-                    <Trash
-                      size={16}
-                      className={
-                        !deleteModeStore.has(message.id) ? "opacity-50" : ""
-                      }
-                    />
-                  </Button>
-                  {deleteModeStore.has(message.id) ? (
+          {pinnedMessages.length + unpinnedMessages.length == 0 ? (
+            <p>Zatím nepřišly žádné zprávy</p>
+          ) : (
+            pinnedMessages.concat(unpinnedMessages).map((message) => (
+              <div className="flex flex-col gap-4 max-w-lg">
+                <Card
+                  className={`p-0.5 pl-3 flex gap-1 items-center w-full ${
+                    pinnedMessageIds.has(message.id) && "border-primary"
+                  }`}
+                >
+                  <div>{message.content}</div>
+                  <div className="flex flex-col justify-between item-center">
                     <Button
-                      onClick={() => toggleDeleteMode(message.id)}
-                      variant="ghost"
+                      onClick={() =>
+                        deleteModeStore.has(message.id)
+                          ? deleteMessage(message.id)
+                          : toggleDeleteMode(message.id)
+                      }
+                      variant={
+                        deleteModeStore.has(message.id)
+                          ? "destructive"
+                          : "ghost"
+                      }
                       size="sm"
                     >
-                      <X size={16} />
+                      <Trash
+                        size={16}
+                        className={
+                          !deleteModeStore.has(message.id) ? "opacity-50" : ""
+                        }
+                      />
                     </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className={
-                        pinnedMessageIds.has(message.id) ? "bg-muted" : ""
-                      }
-                      onClick={() => handleToggle(message.id)}
-                    >
-                      <Pin size={16} className="opacity-50" />
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            </div>
-          ))}
+                    {deleteModeStore.has(message.id) ? (
+                      <Button
+                        onClick={() => toggleDeleteMode(message.id)}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        <X size={16} />
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={
+                          pinnedMessageIds.has(message.id) ? "bg-muted" : ""
+                        }
+                        onClick={() => handleToggle(message.id)}
+                      >
+                        <Pin size={16} className="opacity-50" />
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            ))
+          )}
         </>
       )}
     </div>

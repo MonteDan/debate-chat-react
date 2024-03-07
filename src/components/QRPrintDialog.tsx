@@ -10,12 +10,36 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { getSizeInMm, round } from "@/lib/utils";
+import { flow } from "fp-ts/lib/function";
 import { Printer } from "lucide-react";
-import { useState } from "react";
+import { FC, useEffect, useState } from "react";
 
-const QRPrintDialog = () => {
+type Props = {
+  onPrint?: (imagesPerA4: number) => void;
+  chatID: string;
+};
+
+const amountOptions = [1, 2, 6, 12, 15, 20];
+const sizeOptions = amountOptions.map(
+  flow(getSizeInMm, round(0), (n) => n / 10)
+);
+
+const QRPrintDialog: FC<Props> = ({ chatID }) => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [imagesPerA4, setImagesPerA4] = useState(1);
+
+  useEffect(
+    () => setImagesPerA4(amountOptions[selectedIndex]),
+    [selectedIndex]
+  );
+
+  const getClass = (i: number) => (selectedIndex === i ? "bg-accent" : "");
+
+  // const dispatchPrint = () => {
+  //   onPrint(imagesPerA4);
+  // };
 
   return (
     <AlertDialog>
@@ -27,22 +51,42 @@ const QRPrintDialog = () => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Jak tisknout?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Kliknutím vyberte, kolik QR kódů byste chtěl/a vytisknout na jednu
-            A4. V tiskovém okně na následující straně se ujistěte, že máte vyplé
-            odsazení a okraje – toto nastavení prohlížeče schovávají pod skupinu
-            "Další nastavení". Tisknuta by měla být jen jedna strana, počet
-            požadovaných kusů je nastavitelný v poli "Kopie".
+          <AlertDialogDescription className="pb-2">
+            Zvolte, kolik QR kódů chcete vytisknout na jednu stránku formátu A4,
+            možnosti jsou vybrány ekologicky pro efektivní využití papíru. Před
+            tiskem se ujistěte, že tisknete na A4 a že máte vyplé okraje a
+            odsazení.
           </AlertDialogDescription>
-          {imagesPerA4}
-          <Input
-            type="number"
-            onChange={(e) => console.log(e.target.value)}
-          ></Input>
+          <Label>Počet QR kódů na A4</Label>
+          <div className="flex gap-2">
+            {amountOptions.map((n, i) => (
+              <Button
+                onClick={() => setSelectedIndex(i)}
+                variant="ghost"
+                className={getClass(i)}
+              >
+                {n}
+              </Button>
+            ))}
+          </div>
+          <Label>Velikost jednotlivých QR kódů (cm)</Label>
+          <div className="flex gap-2">
+            {sizeOptions.map((n, i) => (
+              <Button
+                onClick={() => setSelectedIndex(i)}
+                variant="ghost"
+                className={getClass(i)}
+              >
+                {n}
+              </Button>
+            ))}
+          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogCancel>Zrušit</AlertDialogCancel>
+          <a target="_blank" href={`/print/${chatID}/${imagesPerA4}`}>
+            <AlertDialogAction>Tisknout</AlertDialogAction>
+          </a>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
