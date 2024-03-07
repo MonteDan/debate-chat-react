@@ -13,7 +13,8 @@ type Props = {
 const QRDialog: FC<Props> = ({ chatID }) => (
   <Dialog>
     <DialogTrigger asChild>
-      <Button variant="ghost" className="w-auto h-auto p-2 ">
+      <Button variant="outline" className="px-2 flex gap-2">
+        Získat QR kód
         <QrCode size={24} />
       </Button>
     </DialogTrigger>

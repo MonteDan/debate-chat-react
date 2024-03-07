@@ -55,14 +55,10 @@ function Join() {
           render={({ field }) => (
             <FormItem className="space-y-0 w-full">
               <FormLabel htmlFor="id">
-                Zadejte adresu a připojte se jako divák
+                Zadejte kód a připojte se jako divák
               </FormLabel>
               <FormControl>
-                <Input
-                  className="w-full"
-                  placeholder="Adresa chatu"
-                  {...field}
-                />
+                <Input className="w-full" placeholder="Kód chatu" {...field} />
               </FormControl>
               <FormMessage></FormMessage>
             </FormItem>

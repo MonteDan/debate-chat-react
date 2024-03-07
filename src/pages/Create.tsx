@@ -57,7 +57,7 @@ function Home() {
           console.log(error);
           createForm.setError("id", {
             type: "custom",
-            message: "Tato adresa chatu již existuje. Zkuste jinou.",
+            message: "Chat s tímto kódem již existuje. Zkuste jiný.",
           });
           return error;
         },
@@ -104,11 +104,11 @@ function Home() {
               render={({ field }) => (
                 <FormItem className="space-y-1 w-full">
                   <FormLabel htmlFor="id" className="flex items-center gap-2">
-                    Vlastní adresa (nepovinné)
+                    Kód pro připojení (nepovinné)
                     <FormHelp>
-                      Adresa/ID chatu, kterou zadávají diváci, když se připojují
-                      do chatu, např. jan-novotny. Když nezadáte, bude
-                      vygenerována automaticky.
+                      Kód chatu, který zadávají diváci, když se připojují do
+                      chatu, např. jan-novotny. Když kód nezadáte, bude
+                      vygenerován automaticky.
                     </FormHelp>
                   </FormLabel>
                   <FormControl>

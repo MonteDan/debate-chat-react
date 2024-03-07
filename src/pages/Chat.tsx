@@ -7,6 +7,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { getChatTE, sendMessageTE } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as O from "fp-ts/Option";
@@ -22,9 +23,10 @@ const messageSchema = z.object({
   content: z.string().min(1),
 });
 
-function Chat() {
+const Chat = () => {
   const navigate = useNavigate();
   const { chat_id } = useParams();
+  const {toast} = useToast()
   const chatID = chat_id || "";
 
   const [title, setTitle] = useState("Načítání chatu...");
@@ -76,6 +78,8 @@ function Chat() {
         },
         (response) => {
           setFormState("success");
+          messageForm.reset()
+          toast({description: "Zpráva odeslána"})
           return Promise.resolve(response);
         }
       )

@@ -27,9 +27,9 @@ function Help() {
             <li className="py-1">
               <p className="text-foreground/80">
                 <strong>Divák</strong> se připojí do chatu na úvodní stránce
-                zadáním adresy chatu. Alternativně může divák jít na stránku
-                <code>debatnichat.online/chat/ADRESA123</code>, kde{" "}
-                <code>ADRESA123</code> je adresa chatu. Dále má divák možnost
+                zadáním kódu chatu. Alternativně může divák jít na stránku
+                <code>debatnichat.online/chat/KOD123</code>, kde{" "}
+                <code>KOD123</code> je kód chatu. Dále má divák možnost
                 sken QR kódu vedoucího na tuto stránku, pokud ho moderátor
                 poskytl.
               </p>
@@ -43,9 +43,9 @@ function Help() {
               <p className="text-foreground/80">
                 <strong>Moderátor</strong> se přihlásí ke svému účtu a na úvodní
                 stránce zvolí možnost VYTVOŘIT CHAT. Při vytváření chatu může
-                moderátor nastavit název chatu, a vlastní adresu. Vlastní adresa
-                může být užitečná pro jednoduché sdílení odkazu na místnost,
-                např. moderátor zvolí adresu jako <code>123</code>, pak bude
+                moderátor nastavit název chatu, a vlastní kód. Vlastní kód
+                může být užitečný pro jednoduché sdílení odkazu na místnost,
+                např. moderátor zvolí kód jako <code>123</code>, pak bude
                 chat dostupný na
                 <code>debatnichat.online/chat/123</code>
               </p>
