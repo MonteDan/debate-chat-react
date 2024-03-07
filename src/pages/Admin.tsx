@@ -1,4 +1,4 @@
-import QRCode from "@/components/QRCode";
+import QRDialog from "@/components/QRDialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
@@ -19,10 +19,10 @@ import { useNavigate, useParams } from "react-router-dom";
 function Admin() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { chat_id } = useParams();
-  const chatID = chat_id || "";
+  const chatID = useParams().chat_id || "";
 
   const [loading, setLoading] = useState(true);
+  const [chatTitle, setChatTitle] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [pinnedMessageIds, setPinnedMessageIds] = useState<Set<string>>(
     new Set()
@@ -44,7 +44,7 @@ function Admin() {
     pipe(
       deleteMessageTE(messageID, Cookies.get("adminToken") ?? ""),
       TE.matchW(
-        () => toast({ title: "Nepodařilo se smazat zprávu" }),
+        () => toast({ description: "Nepodařilo se smazat zprávu" }),
         () => {
           toggleDeleteMode(messageID);
           setMessages((prevMessages) =>
@@ -70,6 +70,7 @@ function Admin() {
           () => navigate("/", { replace: true }),
           (chat) => {
             setMessages(chat.messages);
+            setChatTitle(chat.title);
             setLoading(false);
           }
         )
@@ -93,64 +94,73 @@ function Admin() {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <QRCode value={"debatnichat.online/chat/" + chatID} />
-      <div className="flex flex-col items-end gap-4">
-        {loading ? (
-          <p>Načítání...</p>
-        ) : pinnedMessages.length + unpinnedMessages.length == 0 ? (
-          <p>Zatím nepřišly žádné zprávy</p>
-        ) : (
-          pinnedMessages.concat(unpinnedMessages).map((message) => (
-            <Card
-              className={`p-0.5 pl-3 flex gap-1 items-center w-fit max-w-lg ${
-                pinnedMessageIds.has(message.id) && "border-primary"
-              }`}
-            >
-              <span>{message.content}</span>
-              <span className="flex flex-col justify-between item-center">
-                <Button
-                  onClick={() =>
-                    deleteModeStore.has(message.id)
-                      ? deleteMessage(message.id)
-                      : toggleDeleteMode(message.id)
-                  }
-                  variant={
-                    deleteModeStore.has(message.id) ? "destructive" : "ghost"
-                  }
-                  size="sm"
+      {loading ? (
+        <p>Načítání...</p>
+      ) : (
+        <>
+          <div className="flex gap-4 items-center">
+            <h3>{chatTitle}</h3>
+            <QRDialog chatID={chatID} />
+          </div>
+          {pinnedMessages.length + unpinnedMessages.length == 0 ? (
+            <p>Zatím nepřišly žádné zprávy</p>
+          ) : (
+            pinnedMessages.concat(unpinnedMessages).map((message) => (
+              <div className="flex flex-col gap-4 max-w-lg">
+                <Card
+                  className={`p-0.5 pl-3 flex gap-1 items-center w-full ${
+                    pinnedMessageIds.has(message.id) && "border-primary"
+                  }`}
                 >
-                  <Trash
-                    size={16}
-                    className={
-                      !deleteModeStore.has(message.id) ? "opacity-50" : ""
-                    }
-                  />
-                </Button>
-                {deleteModeStore.has(message.id) ? (
-                  <Button
-                    onClick={() => toggleDeleteMode(message.id)}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <X size={16} />
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className={
-                      pinnedMessageIds.has(message.id) ? "bg-muted" : ""
-                    }
-                    onClick={() => handleToggle(message.id)}
-                  >
-                    <Pin size={16} className="opacity-50" />
-                  </Button>
-                )}
-              </span>
-            </Card>
-          ))
-        )}
-      </div>
+                  <div>{message.content}</div>
+                  <div className="flex flex-col justify-between item-center">
+                    <Button
+                      onClick={() =>
+                        deleteModeStore.has(message.id)
+                          ? deleteMessage(message.id)
+                          : toggleDeleteMode(message.id)
+                      }
+                      variant={
+                        deleteModeStore.has(message.id)
+                          ? "destructive"
+                          : "ghost"
+                      }
+                      size="sm"
+                    >
+                      <Trash
+                        size={16}
+                        className={
+                          !deleteModeStore.has(message.id) ? "opacity-50" : ""
+                        }
+                      />
+                    </Button>
+                    {deleteModeStore.has(message.id) ? (
+                      <Button
+                        onClick={() => toggleDeleteMode(message.id)}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        <X size={16} />
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={
+                          pinnedMessageIds.has(message.id) ? "bg-muted" : ""
+                        }
+                        onClick={() => handleToggle(message.id)}
+                      >
+                        <Pin size={16} className="opacity-50" />
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            ))
+          )}
+        </>
+      )}
     </div>
   );
 }
