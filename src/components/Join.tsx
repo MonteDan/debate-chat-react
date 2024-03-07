@@ -48,7 +48,7 @@ function Join() {
 
   return (
     <Form {...joinForm}>
-      <form onSubmit={joinForm.handleSubmit(onSubmit)} className="flex gap-2">
+      <form onSubmit={joinForm.handleSubmit(onSubmit)} className="flex max-sm:flex-col gap-2">
         <FormField
           control={joinForm.control}
           name="id"
@@ -65,7 +65,7 @@ function Join() {
           )}
         />
 
-        <Button type="submit" className="mt-6">
+        <Button type="submit" className="sm:mt-6">
           <LogIn className="mr-3" /> Vstoupit
         </Button>
       </form>

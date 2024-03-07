@@ -38,10 +38,10 @@ const App = () => {
     <>
       {!location.pathname.includes("/print/") && (
         <>
-          <nav className="fixed top-0 left-0 bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/30 w-full flex justify-between px-8 py-5">
+          <nav className="fixed top-0 left-0 bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/30 w-screen flex justify-between px-3 sm:px-8 py-5">
             <Link
               to="/"
-              className="flex gap-2 items-center font-serif text-2xl font-semibold"
+              className="flex gap-2 items-center font-serif text-xl sm:text-2xl font-semibold"
             >
               <MessageSquareText className="text-primary" size={48} />
               Debatní chat
@@ -50,7 +50,7 @@ const App = () => {
             <Help></Help>
           </nav>
 
-          <main className="min-h-screen w-screen flex justify-center items-center py-32">
+          <main className="min-h-screen w-screen flex justify-center items-center py-32 px-3">
             {routes}
             <Toaster />
           </main>

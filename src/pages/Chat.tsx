@@ -92,7 +92,7 @@ const Chat = () => {
       <Form {...messageForm}>
         <form
           onSubmit={messageForm.handleSubmit(onSubmit)}
-          className={`transition-all duration-300 flex gap-2 ${
+          className={`transition-all duration-300 flex max-sm:flex-col gap-2 ${
             (formState == "loading" || formState == "sending") &&
             "opacity-50 pointer-events-none"
           }`}
@@ -117,7 +117,7 @@ const Chat = () => {
             )}
           />
 
-          <Button type="submit" className="mt-6">
+          <Button type="submit" className="sm:mt-6">
             {formState == "sending" ? "Odesílání" : "Odeslat"}
 
             {formState == "error" ? (
