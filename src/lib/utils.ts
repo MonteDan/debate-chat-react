@@ -45,8 +45,8 @@ export const toggleSet =
     return newSet;
   };
 
-export const W = 205; // A4 width (mm), I went for 5mm less just to be sure of the compatibility with the majority of browsers
-export const H = 292; // A4 height (mm), I went for 5mm less just to be sure of the compatibility with the majority of browsers
+export const W = 205; // A4 width (mm), I went for 5mm less just to be sure of the compatibility with the majority of browsers and printers
+export const H = 292; // A4 height (mm), I went for 5mm less just to be sure of the compatibility with the majority of browsers and printers
 /** Number of square images => number of columns needed to fit them on an A4 while keeping them as spacious as possible */
 export const getColumns = (nOfImages: number) =>
   Math.ceil((Math.sqrt(nOfImages) * W) / H);
