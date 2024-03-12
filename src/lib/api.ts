@@ -1,5 +1,6 @@
 import * as TE from "fp-ts/TaskEither";
 import { identity } from "fp-ts/lib/function";
+import { hashPassword } from "./utils";
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
@@ -14,7 +15,7 @@ export type Chat = {
   messages: Message[];
 };
 
-export const createChatTE = (title: string, chatID: string) =>
+export const createChatTE = (title: string, chatID: string, password: string) =>
   TE.tryCatchK(
     () =>
       fetch(`http${API_URL}/chats`, {
@@ -22,7 +23,11 @@ export const createChatTE = (title: string, chatID: string) =>
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, id: chatID }),
+        body: JSON.stringify({
+          title,
+          id: chatID,
+          password: hashPassword(password, chatID),
+        }),
       }).then((res) =>
         res.ok ? (res.json() as Promise<Chat>) : Promise.reject("")
       ),
@@ -59,6 +64,26 @@ export const adminGetChatTE = (chatID: string, adminToken: string) =>
           "Content-Type": "application/json",
           Authorization: `Bearer ${adminToken}`,
         },
+      }).then((res) =>
+        res.ok
+          ? (res.json() as Promise<Chat>)
+          : Promise.reject("Insufficient permissions")
+      ),
+    identity
+  )();
+
+export const adminChatLoginTE = (chatID: string, password: string) =>
+  TE.tryCatchK(
+    () =>
+      fetch(`http${API_URL}/chats/${chatID}/admin/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          password: hashPassword(password, chatID),
+          id: chatID,
+        }),
       }).then((res) =>
         res.ok
           ? (res.json() as Promise<Chat>)

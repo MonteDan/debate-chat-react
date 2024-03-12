@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { createChatTE } from "@/lib/api";
-import { cleanString } from "@/lib/utils";
+import { cleanString, generateID } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
@@ -29,6 +29,9 @@ import { z } from "zod";
 const createSchema = z.object({
   title: z.string().optional(),
   id: z.string().optional(),
+  password: z.string({
+    required_error: "Heslo je povinné",
+  }),
 });
 
 function Home() {
@@ -50,8 +53,8 @@ function Home() {
   const onSubmit = async (values: z.infer<typeof createSchema>) =>
     pipe(
       values.id,
-      cleanOrElse(""),
-      (chatID) => createChatTE(values.title || "", chatID),
+      cleanOrElse(generateID()),
+      (chatID) => createChatTE(values.title || "", chatID, values.password),
       TE.matchW(
         (error) => {
           console.log(error);
@@ -62,6 +65,7 @@ function Home() {
           return error;
         },
         ({ adminToken, id }) => {
+          console.log(adminToken);
           Cookies.set("adminToken", adminToken, { expires: 1 });
           navigate(`/admin/${id}`, { replace: true });
           return { adminToken, id };
@@ -104,7 +108,7 @@ function Home() {
               render={({ field }) => (
                 <FormItem className="space-y-1 w-full">
                   <FormLabel htmlFor="id" className="flex items-center gap-2">
-                    Kód pro připojení (nepovinné)
+                    Kód pro připojení diváka (nepovinné)
                     <FormHelp>
                       Kód chatu, který zadávají diváci, když se připojují do
                       chatu, např. jan-novotny. Když kód nezadáte, bude
@@ -113,6 +117,26 @@ function Home() {
                   </FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={createForm.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="space-y-1 w-full">
+                  <FormLabel
+                    htmlFor="password"
+                    className="flex items-center gap-2"
+                  >
+                    Heslo moderátora chatu
+                    <FormHelp>
+                      Heslo pro přihlášení do chatu jako moderátor
+                    </FormHelp>
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
                   </FormControl>
                 </FormItem>
               )}

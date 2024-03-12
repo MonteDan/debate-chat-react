@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import crypto from "crypto-js";
 import * as O from "fp-ts/Option";
 import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
@@ -93,3 +94,19 @@ export const downloadQrCode = (chatID: string) =>
       () => T.fromIO(() => undefined)
     )
   )();
+
+const characters =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+export const generateID = (length: number = 8) => {
+  let id = "";
+  for (let i = 0; i < length; i++) {
+    id += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return id;
+};
+
+export const hashPassword = (password: string, salt: string) =>
+  crypto
+    .SHA256(password + salt)
+    .toString()
+    .slice(0, 64);

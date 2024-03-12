@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Print from "@/pages/Print";
 import { MessageSquareText } from "lucide-react";
 import { Link, useLocation, useRoutes } from "react-router-dom";
+import ChatLogin from "./pages/ChatLogin";
 
 const App = () => {
   const location = useLocation();
@@ -22,6 +23,10 @@ const App = () => {
     {
       path: "/admin/:chat_id",
       element: <Admin />,
+    },
+    {
+      path: "/login/:chat_id",
+      element: <ChatLogin />,
     },
     {
       path: "/chat/:chat_id",

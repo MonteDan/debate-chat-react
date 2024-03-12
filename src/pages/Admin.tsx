@@ -72,7 +72,7 @@ function Admin() {
       pipe(
         adminGetChatTE(chatID, Cookies.get("adminToken") || ""),
         TE.matchW(
-          () => navigate("/", { replace: true }),
+          () => navigate(`/login/${chatID}`, { replace: true }),
           (chat) => {
             setMessages(chat.messages);
             setChatTitle(chat.title);
@@ -105,7 +105,7 @@ function Admin() {
         <>
           <div className="flex flex-col gap-4 max-w-full">
             <h2 className="whitespace-nowrap overflow-hidden overflow-ellipsis">
-              {chatTitle}artartartar
+              {chatTitle}
             </h2>
             <p className="flex gap-1 items-center">
               Kód: {chatID}
