@@ -25,7 +25,7 @@ const messageSchema = z.object({
 
 const Chat = () => {
   const navigate = useNavigate();
-  const { chat_id: chatID } = useParams();
+  const { chat_id: chatID = "" } = useParams();
   const { toast } = useToast();
 
   const [title, setTitle] = useState("Načítání chatu...");
